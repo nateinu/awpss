@@ -1,0 +1,8 @@
+
+Simple PyGTK program for continuously changing your background based on what is popular on online image boards.
+
+Run:
+git clone https://github.com/nateinu/awpss.git
+cd awpss
+./awpss.py
+

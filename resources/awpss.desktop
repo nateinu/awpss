@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=0.1
+Terminal=false
+Type=Application
+Name=Anime Wallpaper Slideshow
+Exec=/usr/bin/env python3 /{install_path}/awpss.py
+Icon=/{install_path}/resources/Anime_film_icon.svg
