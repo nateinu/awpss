@@ -6,10 +6,6 @@ import random
 from subprocess import call
 from collections import defaultdict
 from set_wallpaper import set_wallpaper
-from handlers.pixiv_api import PixivAPI
-from handlers.gelbooru_api import GelbooruAPI
-from handlers.danbooru_api import DanbooruAPI
-from handlers.shimmie2_danbooru_api import Shimmie2DanbooruAPI
 
 try:
     from urlparse import urljoin  # Python2
@@ -67,13 +63,13 @@ def get_more_pic_urls(conf, hist):
         hist = delete_cahce(hist)
     
     if   conf['api'] == 'pixiv_api':
-        api = PixivAPI()
+        api = handlers.pixiv_api.PixivAPI()
     elif conf['api'] == 'gelbooru_api':
-        api = GelbooruAPI()
+        api = handlers.gelbooru_api.GelbooruAPI()
     elif conf['api'] == 'danbooru_api':
-        api = DanbooruAPI()
+        api = handlers.danbooru_api.DanbooruAPI()
     elif conf['api'] == 'shimmie2_danbooru_api':
-        api = Shimmie2DanbooruAPI()
+        api = handlers.shimmie2_danbooru_api.Shimmie2DanbooruAPI()
     else:
         raise Error("Unknown API")
     
