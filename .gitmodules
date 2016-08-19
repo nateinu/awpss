@@ -1,0 +1,3 @@
+[submodule "resources/pixivpy"]
+	path = resources/pixivpy
+	url = git@github.com:upbit/pixivpy.git
