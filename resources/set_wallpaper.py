@@ -97,7 +97,7 @@ def set_wallpaper(file_loc, first_run):
     # command line: KDE, Enlightenment
     desktop_env = get_desktop_environment()
     try:
-        if desktop_env in ["gnome", "unity", "cinnamon"]:
+        if desktop_env in ["gnome", "unity"]:
             #uri = "'file://%s'" % file_loc
             uri = file_loc
             try:
@@ -107,6 +107,16 @@ def set_wallpaper(file_loc, first_run):
                 gsettings.set_string(KEY, uri)
             except:
                 args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
+                subprocess.Popen(args)
+        elif desktop_env=="cinnamon":
+            uri = "'file://%s'" % file_loc
+            try:
+                SCHEMA = "org.cinnamon.desktop.background"
+                KEY = "picture-uri"
+                gsettings = Gio.Settings.new(SCHEMA)
+                gsettings.set_string(KEY, uri)
+            except:
+                args = ["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", uri]
                 subprocess.Popen(args)
         elif desktop_env=="mate":
             try: # MATE >= 1.6
