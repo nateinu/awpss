@@ -140,16 +140,15 @@ def set_wallpaper(file_loc, first_run):
         elif desktop_env=="xfce4":
             #From http://www.commandlinefu.com/commands/view/2055/change-wallpaper-for-xfce4-4.6.0
             if first_run:
-                out, err = subprocess.Popen(['xfconf-query','--channel','xfce4-desktop','--list','|','grep','last-image'], stdout=subprocess.PIPE).communicate()
-                out = out.splitlines()
-                for window in out:
-                    window = os.path.dirname(window)
-                    args0 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-path"  % window, "--set", file_loc]
+                for window in subprocess.check_output(['xfconf-query','--channel','xfce4-desktop','--list','|','grep','last-image']).splitlines():
+                    window = os.path.dirname(window.decode('utf-8'))
+                    #args0 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-path"  % window, "--set", file_loc]
+                    args0 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/last-image"  % window, "--set", file_loc]
                     args1 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-style" % window, "--set", "3"]
-                    args2 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-show"  % window, "--set", "true"]
+                    #args2 = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-show"  % window, "--set", "true"]
                     subprocess.Popen(args0)
                     subprocess.Popen(args1)
-                    subprocess.Popen(args2)
+                    #subprocess.Popen(args2)
                 args = ["xfdesktop","--reload"]
                 subprocess.Popen(args)
         elif desktop_env=="razor-qt": #TODO: implement reload of desktop when possible
