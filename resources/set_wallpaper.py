@@ -109,7 +109,7 @@ def set_wallpaper(file_loc, first_run):
                 args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
                 subprocess.Popen(args)
         elif desktop_env=="cinnamon":
-            uri = "'file://%s'" % file_loc
+            uri = "file://%s" % file_loc
             try:
                 SCHEMA = "org.cinnamon.desktop.background"
                 KEY = "picture-uri"
