@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pixivpy.pixivpy3 import *
+#from pixivpy.pixivpy3 import *
 
 class PixivAPI:
     
@@ -10,10 +10,10 @@ class PixivAPI:
     
     url_api = 'api/danbooru/find_posts'
     
-    aapi = AppPixivAPI()
-    json_result = aapi.illust_ranking()
-    for illust in json_result.illusts[:3]:
-        aapi.download(illust.image_urls.large)
+    #aapi = AppPixivAPI()
+    #json_result = aapi.illust_ranking()
+    #for illust in json_result.illusts[:3]:
+    #    aapi.download(illust.image_urls.large)
     
     def fetch(self):
         requestURL = "%s%s?tags=" % (self.conf['url'], self.url_api)

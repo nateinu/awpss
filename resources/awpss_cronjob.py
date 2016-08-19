@@ -3,6 +3,7 @@
 import os
 import json
 import random
+from handlers import *
 from subprocess import call
 from collections import defaultdict
 from set_wallpaper import set_wallpaper
@@ -63,13 +64,13 @@ def get_more_pic_urls(conf, hist):
         hist = delete_cahce(hist)
     
     if   conf['api'] == 'pixiv_api':
-        api = handlers.pixiv_api.PixivAPI()
+        api = pixiv_api.PixivAPI()
     elif conf['api'] == 'gelbooru_api':
-        api = handlers.gelbooru_api.GelbooruAPI()
+        api = gelbooru_api.GelbooruAPI()
     elif conf['api'] == 'danbooru_api':
-        api = handlers.danbooru_api.DanbooruAPI()
+        api = danbooru_api.DanbooruAPI()
     elif conf['api'] == 'shimmie2_danbooru_api':
-        api = handlers.shimmie2_danbooru_api.Shimmie2DanbooruAPI()
+        api = shimmie2_danbooru_api.Shimmie2DanbooruAPI()
     else:
         raise Error("Unknown API")
     
