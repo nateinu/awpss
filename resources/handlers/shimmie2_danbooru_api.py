@@ -28,7 +28,6 @@ class Shimmie2DanbooruAPI:
         
         requestURL += "%s&limit=%s&page=%s" % (self.conf['tags'], self.conf['api_limit'], self.conf['offset'])
         
-        print(requestURL)
         root = ET.parse(urlopen(requestURL)).getroot()
         self.items = root.findall('post')
         

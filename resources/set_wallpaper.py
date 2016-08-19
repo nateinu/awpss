@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+import traceback
+import subprocess
+from gi.repository import Gio
+
 # From: Martin Hansen
 # https://stackoverflow.com/users/2118300/martin-hansen
 # https://stackoverflow.com/questions/1977694/change-desktop-background
 # https://stackoverflow.com/questions/2035657/what-is-my-current-desktop-environment/21213358#21213358
 
-APP_NAME = 'awpss'
-
-def get_desktop_environment(self):
+def get_desktop_environment():
     #From http://stackoverflow.com/questions/2035657/what-is-my-current-desktop-environment
     # and http://ubuntuforums.org/showthread.php?t=652320
     # and http://ubuntuforums.org/showthread.php?t=652320
@@ -44,13 +48,13 @@ def get_desktop_environment(self):
             if not "deprecated" in os.environ.get('GNOME_DESKTOP_SESSION_ID'):
                 return "gnome2"
         #From http://ubuntuforums.org/showthread.php?t=652320
-        elif self.is_running("xfce-mcs-manage"):
+        elif is_running("xfce-mcs-manage"):
             return "xfce4"
-        elif self.is_running("ksmserver"):
+        elif is_running("ksmserver"):
             return "kde"
     return "unknown"
 
-def is_running(self, process):
+def is_running( process):
     #From http://www.bloggerpolis.com/2011/05/how-to-check-if-a-process-is-running-using-python/
     # and http://richarddingwall.name/2009/06/18/windows-equivalents-of-ps-and-kill-commands/
     try: #Linux/Unix
@@ -62,7 +66,7 @@ def is_running(self, process):
             return True
     return False
 
-def get_config_dir(self, app_name=APP_NAME):
+def get_config_dir(app_name):
     if "XDG_CONFIG_HOME" in os.environ:
         confighome = os.environ['XDG_CONFIG_HOME'] 
     elif "APPDATA" in os.environ: # On Windows
@@ -72,11 +76,11 @@ def get_config_dir(self, app_name=APP_NAME):
             from xdg import BaseDirectory   
             confighome =  BaseDirectory.xdg_config_home
         except ImportError: # Most likely a Linux/Unix system anyway
-            confighome =  os.path.join(self.get_home_dir(),".config")
+            confighome =  os.path.join(get_home_dir(),".config")
     configdir = os.path.join(confighome,app_name)
     return configdir
 
-def get_home_dir(self):
+def get_home_dir():
     if sys.platform == "cygwin":
         home_dir = os.getenv('HOME')
     else:
@@ -87,14 +91,15 @@ def get_home_dir(self):
         return os.path.expanduser('~')
         # raise KeyError("Neither USERPROFILE or HOME environment variables set.")
     
-def set_wallpaper(self, file_loc, first_run):
+def set_wallpaper(file_loc, first_run):
     # Note: There are two common Linux desktop environments where 
     # I have not been able to set the desktop background from 
     # command line: KDE, Enlightenment
-    desktop_env = self.get_desktop_environment()
+    desktop_env = get_desktop_environment()
     try:
         if desktop_env in ["gnome", "unity", "cinnamon"]:
-            uri = "'file://%s'" % file_loc
+            #uri = "'file://%s'" % file_loc
+            uri = file_loc
             try:
                 SCHEMA = "org.gnome.desktop.background"
                 KEY = "picture-uri"
@@ -137,11 +142,11 @@ def set_wallpaper(self, file_loc, first_run):
             if first_run:
                 desktop_conf = configparser.ConfigParser()
                 # Development version
-                desktop_conf_file = os.path.join(self.get_config_dir("razor"),"desktop.conf") 
+                desktop_conf_file = os.path.join(get_config_dir("razor"),"desktop.conf") 
                 if os.path.isfile(desktop_conf_file):
                     config_option = r"screens\1\desktops\1\wallpaper"
                 else:
-                    desktop_conf_file = os.path.join(self.get_home_dir(),".razor/desktop.conf")
+                    desktop_conf_file = os.path.join(get_home_dir(),".razor/desktop.conf")
                     config_option = r"desktops\1\wallpaper"
                 desktop_conf.read(os.path.join(desktop_conf_file))
                 try:
@@ -211,6 +216,8 @@ def set_wallpaper(self, file_loc, first_run):
         return True
     except:
         sys.stderr.write("ERROR: Failed to set wallpaper. There might be a bug.\n")
+        print("Unexpected error:", sys.exc_info()[0])
+        traceback.print_exc(file=sys.stdout)
         return False
 
 

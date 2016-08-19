@@ -115,6 +115,14 @@ hist = read_hist_file()
 
 pic_url  = get_pic_url(conf, hist, 1)
 pic_name = os.path.basename(pic_url)
+
+'''
+"eCryptFS which uses part of the lower file name to keep metadata and limits the file name to a maximum length of 143 characters."
+https://bugs.launchpad.net/ecryptfs/+bug/344878
+'''
+if len(pic_name) > 120:
+    pic_name = pic_name[:120]
+
 pic_file = os.path.join(conf_dir, pic_name)
 
 write_hist_file(hist)
@@ -124,7 +132,7 @@ if not os.path.exists(pic_file):
     f.write(urlopen(pic_url).read())
     f.close()
 
-call("DISPLAY=:0 GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri %s" % pic_file, shell=True)
-#set_wallpaper(self, pic_file, True)
+#call("DISPLAY=:0 GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri %s" % pic_file, shell=True)
+set_wallpaper(pic_file, True)
 
 

@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 
-import xml.etree.ElementTree as ET
-
-try:
-    from urlparse import urljoin  # Python2
-    from urllib import urlopen
-except ImportError:
-    from urllib.parse import urljoin  # Python3
-    from urllib.request import urlopen
+from pixivpy.pixivpy3 import *
 
 class PixivAPI:
     
@@ -16,6 +9,11 @@ class PixivAPI:
     need_to_fetch = True
     
     url_api = 'api/danbooru/find_posts'
+    
+    aapi = AppPixivAPI()
+    json_result = aapi.illust_ranking()
+    for illust in json_result.illusts[:3]:
+        aapi.download(illust.image_urls.large)
     
     def fetch(self):
         requestURL = "%s%s?tags=" % (self.conf['url'], self.url_api)
