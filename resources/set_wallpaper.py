@@ -127,9 +127,15 @@ def set_wallpaper(file_loc):
     
     try:
         
-        if desktop_env in ["gnome", "unity"]:
+        if   desktop_env == "gnome":
 
             uri  = file_loc
+            args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
+            call(args)
+
+        elif desktop_env == "unity":
+
+            uri  = "file://%s" % file_loc
             args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
             call(args)
 
