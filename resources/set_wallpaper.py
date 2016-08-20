@@ -170,14 +170,19 @@ def set_wallpaper(file_loc):
             
         elif desktop_env=="xfce4":
 
-            args = ['xfconf-query','--channel','xfce4-desktop','--list','|','grep','last-image']
+            args = ['xfconf-query','--channel','xfce4-desktop','--list']
             for window in subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].splitlines():
-                window = os.path.dirname(window.decode('utf-8'))
-                #call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-path"  % window, "--set", file_loc])
-                call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/last-image"  % window, "--set", file_loc])
-                call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-style" % window, "--set", "3"])
-                #call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s/image-show"  % window, "--set", "true"])
-            
+                window = window.decode('utf-8')
+                
+                if re.search('last-image', window) or re.search('image-path', window):
+                    call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s" % window, "--set", file_loc])
+                
+                if re.search('image-style', window):
+                    call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s" % window, "--set", "3"])
+                
+                if re.search('image-show', window):
+                    call(["xfconf-query", "--channel", "xfce4-desktop", "--property", "%s" % window, "--set", "true"])
+                
             args = ["xfdesktop","--reload"]
             call(args)
 
