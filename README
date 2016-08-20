@@ -1,8 +1,66 @@
 
+
+
 Simple PyGTK program for continuously changing your background based on what is popular on online image boards.
 
-Run:
-git clone https://github.com/nateinu/awpss.git
-cd awpss
-./awpss.py
+
+
+Basic Usage:
+$ git clone https://github.com/nateinu/awpss.git
+$ ./awpss/awpss.py
+Click "Apply"
+
+
+
+"Install" and add to launcher (add .desktop file)
+$ git clone https://github.com/nateinu/awpss.git
+$ ./awpss/resources/install.sh $HOME
+Click on "Anime Wallpaper Slideshow" icon in launcher
+Click "Apply"
+
+
+
+Status (commit b198b6e):
+
+Working APIs:
+Gelbooru API
+Danbooru API
+Shimmie2 Danbooru API
+
+Not Working APIs:
+Pixiv
+
+
+
+Tested as working OSs:
+elementaryos-0.3.2-stable-amd64.20151209.iso - throws error but still works
+Fedora-Cinnamon-Live-x86_64-24-1.2.iso
+Fedora-KDE-Live-x86_64-24-1.2.iso - after dnf update, version of KDE in iso too old (iso 5.6, update 5.7)
+Fedora-LXDE-Live-x86_64-24-1.2.iso
+Fedora-MATE_Compiz-Live-x86_64-24-1.2.iso
+Fedora-Workstation-Live-x86_64-24-1.2.iso
+Fedora-Xfce-Live-x86_64-24-1.2.iso
+lubuntu-16.04.1-desktop-amd64.iso
+ubuntu-16.04.1-desktop-amd64.iso
+ubuntu-gnome-16.04.1-desktop-amd64.iso
+ubuntu-mate-16.04-desktop-amd64.iso
+xubuntu-16.04.1-desktop-amd64.iso
+
+Tested as NOT working OSs:
+kubuntu-16.04.1-desktop-amd64.iso - KDE version too old (is 5.5, need 5.7+)
+
+
+
+Errors:
+elementaryos-0.3.2-stable-amd64.20151209.iso
+** (set-wallpaper:4945): WARNING **: set-wallpaper.vala:183: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod: No such interface 'org.freedesktop.Accounts.User' on object at path /org/freedesktop/Accounts/User999
+
+kubuntu-16.04.1-desktop-amd64.iso
+Traceback (most recent call last):
+  File "./awpss/awpss.py", line 7, in <module>
+    gi.require_version('Gtk', '3.0')
+  File "/usr/lib/python3/dist-packages/gi/__init__.py", line 102, in require_version
+    raise ValueError('Namespace %s not available' % namespace)
+ValueError: Namespace Gtk not available
+
 
