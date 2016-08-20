@@ -32,7 +32,8 @@ def get_desktop_environment():
             desktop_session = desktop_session.lower()
             
             if desktop_session in ["gnome","unity", "cinnamon", "mate", "xfce4", "lxde", "fluxbox", 
-                                   "blackbox", "openbox", "icewm", "jwm", "afterstep","trinity", "kde"]:
+                                   "blackbox", "openbox", "icewm", "jwm", "afterstep","trinity", "kde",
+                                   "pantheon"]:
                 return desktop_session
             
             ## Special cases ##
@@ -241,6 +242,12 @@ def set_wallpaper(file_loc):
             args = "pcmanfm --set-wallpaper %s --wallpaper-mode=scaled" % file_loc
             call(args, shell=True)
 
+        elif desktop_env=="pantheon":
+
+            # elementary OS
+            args = ['set-wallpaper', file_loc]
+            call(args)
+
         elif desktop_env=="windowmaker":
 
             args = "wmsetbg -s -u %s" % file_loc
@@ -272,16 +279,16 @@ def set_wallpaper(file_loc):
         
         else:
             
-            sys.stderr.write("Warning: Failed to set wallpaper. Your desktop environment is not supported.")
-            sys.stderr.write("You can try manually to set Your wallpaper to %s" % file_loc)
+            sys.stderr.write("Warning: Failed to set wallpaper. Your desktop environment (%s) is not supported.\n" % desktop_env)
+            sys.stderr.write("You can try manually to set Your wallpaper to %s\n" % file_loc)
             return False
         
         return True
     
     except:
         
-        sys.stderr.write("ERROR: Failed to set wallpaper. There might be a bug.")
-        sys.stderr.write("You can try manually to set Your wallpaper to %s" % file_loc)
+        sys.stderr.write("ERROR: Failed to set wallpaper. There might be a bug.\n")
+        sys.stderr.write("You can try manually to set Your wallpaper to %s\n" % file_loc)
         
         print("Unexpected error:", sys.exc_info()[0])
         traceback.print_exc(file=sys.stdout)
