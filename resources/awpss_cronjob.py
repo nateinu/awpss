@@ -130,6 +130,6 @@ if not os.path.exists(pic_file):
     f.close()
 
 #call("DISPLAY=:0 GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri %s" % pic_file, shell=True)
-set_wallpaper(pic_file, True)
+set_wallpaper(pic_file)
 
 
