@@ -6,6 +6,7 @@ from subprocess import call
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
+from resources.set_wallpaper import is_running
 from resources.set_wallpaper import get_desktop_environment
 
 class Awpss():
@@ -90,6 +91,9 @@ class Awpss():
             call(command)
         else:
             call(rm_cron, shell=True)
+        
+        if not is_running('cron'):
+            print('Cron does not seem to be running.\nYou might need to run:\n"sudo systemctl enable crond ; sudo systemctl start crond"\nOR\n"sudo /etc/init.d/cron start"\n')
 
 
 
