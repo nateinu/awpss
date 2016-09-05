@@ -97,7 +97,8 @@ def is_running(process):
         #print('Looking up process list')
         try:
             #Linux/Unix
-            s = subprocess.Popen(["ps", "axw"],      stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+            s = subprocess.Popen(["ps", "-A"],      stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+            #s = subprocess.Popen(["ps", "axw"],      stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
         except:
             #Windows
             s = subprocess.Popen(["tasklist", "/v"], stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
