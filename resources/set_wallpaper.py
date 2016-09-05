@@ -286,7 +286,7 @@ def set_wallpaper(file_loc, desktop_env = None):
 
             get_dbus_address('lxsession')
             
-            args = "pcmanfm --set-wallpaper %s --wallpaper-mode=scaled" % file_loc
+            args = "pcmanfm --set-wallpaper %s --wallpaper-mode=scaled --display=:0" % file_loc
             call(args, shell=True)
 
         #elif desktop_env=="pantheon":
