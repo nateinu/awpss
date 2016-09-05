@@ -6,6 +6,7 @@ from subprocess import call
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
+from resources.set_wallpaper import get_desktop_environment
 
 class Awpss():
     ''' Main class file. '''
@@ -33,7 +34,8 @@ class Awpss():
         'cache_size' :'500', # Number of images
         'offset'     :'0',
         'user'       :'',
-        'pass'       :''
+        'pass'       :'',
+        'desktop'    :''
     }
 
     def write_conf(self):
@@ -63,6 +65,7 @@ class Awpss():
         self.conf['pass']    =                    self.pass_entry.get_text()
         self.conf['rating']  =                str(self.rating_check.get_active()).lower()
         self.conf['enabled'] =                str(self.enabled_check.get_active()).lower()
+        self.conf['desktop'] = get_desktop_environment()
 
         screen    = Gtk.Window().get_screen()
         mg        = screen.get_monitor_geometry(screen.get_monitor_at_window(screen.get_active_window()))
@@ -77,7 +80,7 @@ class Awpss():
         if os.path.exists(self.hist_file):
             os.remove(self.hist_file)
         
-        command  = ['/usr/bin/env', 'python3', self.cron_file, '2>&1', '>', self.log_file]
+        command  = ['/usr/bin/env', 'python3', self.cron_file, '2>&1', '>>', self.log_file]
         cron_job = '0 * * * * %s' % ' '.join(command)
         add_cron = "( crontab -l | grep -v awpss ; echo \"%s\" ) | crontab - " % cron_job
         rm_cron  = 'crontab -l | grep -v awpss | crontab - '

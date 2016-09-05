@@ -2,11 +2,13 @@
 
 import os
 import json
+import time
 import random
 from handlers import *
 from subprocess import call
 from collections import defaultdict
 from set_wallpaper import set_wallpaper
+from set_wallpaper import get_desktop_environment
 
 try:
     from urlparse import urljoin  # Python2
@@ -33,7 +35,8 @@ conf = {
     'cache_size' :'500', # Number of images
     'offset'     :'0',
     'user'       :'',
-    'pass'       :''
+    'pass'       :'',
+    'desktop'    :''
 }
 
 
@@ -130,6 +133,14 @@ if not os.path.exists(pic_file):
     f.close()
 
 #call("DISPLAY=:0 GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri %s" % pic_file, shell=True)
-set_wallpaper(pic_file)
+
+if conf['desktop']:
+    desktop = conf['desktop']
+else:
+    desktop = get_desktop_environment()
+
+set_wallpaper(pic_file, desktop)
+
+print(time.strftime('%c'), desktop, pic_file, sep="\t")
 
 

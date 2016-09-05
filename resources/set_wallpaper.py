@@ -65,8 +65,17 @@ def get_desktop_environment():
             if not "deprecated" in os.environ.get('GNOME_DESKTOP_SESSION_ID'):
                 return "gnome2"
         
+        elif is_running("gnome-session"):
+            return "gnome"
+        
         elif is_running("xfce-mcs-manage"):
             return "xfce4"
+        
+        elif is_running("xfce4start"):
+            return "xfce4"
+        
+        elif is_running("openbox"):
+            return "openbox"
         
         elif is_running("ksmserver"):
             return "kde"
@@ -122,13 +131,26 @@ def get_home_dir():
 
 
 
-def set_wallpaper(file_loc):
-
-    desktop_env = get_desktop_environment()
+def set_wallpaper(file_loc, desktop_env = None):
+    
+    if desktop_env is None:
+        desktop_env = get_desktop_environment()
     
     try:
         
         if   desktop_env == "gnome":
+            
+            if(os.environ.get('DBUS_SESSION_BUS_ADDRESS') is None):
+                #print('DBUS_SESSION_BUS_ADDRESS is None')
+                args = ['pgrep','gnome-session']
+                lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+                pid = lines[-1]
+                
+                args = ['grep','-z','DBUS_SESSION_BUS_ADDRESS','/proc/%s/environ' % pid]
+                lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].partition(b'\0')[0].decode('utf-8').splitlines()
+                address = lines[0].split("=",1)[1]
+                
+                os.environ['DBUS_SESSION_BUS_ADDRESS'] = address
 
             uri  = file_loc
             args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
