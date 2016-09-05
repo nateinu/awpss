@@ -121,7 +121,7 @@ pic_name = os.path.basename(pic_url)
 https://bugs.launchpad.net/ecryptfs/+bug/344878
 '''
 if len(pic_name) > 120:
-    pic_name = pic_name[:120]
+    pic_name = pic_name[-120:]
 
 pic_file = os.path.join(conf_dir, pic_name)
 
