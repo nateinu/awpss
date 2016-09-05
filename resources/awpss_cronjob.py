@@ -134,13 +134,13 @@ if not os.path.exists(pic_file):
 
 #call("DISPLAY=:0 GSETTINGS_BACKEND=dconf gsettings set org.gnome.desktop.background picture-uri %s" % pic_file, shell=True)
 
-if conf['desktop']:
-    desktop = conf['desktop']
-else:
-    desktop = get_desktop_environment()
+desktop_env = get_desktop_environment()
 
-set_wallpaper(pic_file, desktop)
+if desktop_env is "unknown" and conf['desktop']:
+    desktop_env = conf['desktop']
 
-print(time.strftime('%c'), desktop, pic_file, sep="\t")
+set_wallpaper(pic_file, desktop_env)
+
+print(time.strftime('%c'), desktop_env, pic_file, sep="\t")
 
 

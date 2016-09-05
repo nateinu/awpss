@@ -18,80 +18,91 @@ def get_desktop_environment():
     if sys.platform in ["win32", "cygwin"]:
         return "windows"
     
-    elif sys.platform == "darwin":
+    if sys.platform == "darwin":
         return "mac"
     
-    else:
+    desktop_session = os.environ.get("DESKTOP_SESSION")
+    if desktop_session is not None:
         
-        # Most likely either a POSIX system or something not much common
+        desktop_session = desktop_session.lower()
         
-        desktop_session = os.environ.get("DESKTOP_SESSION")
+        if desktop_session in ["gnome", "unity", "cinnamon", "mate", "xfce4", "lxde", "fluxbox", 
+                               "blackbox", "openbox", "icewm", "jwm", "afterstep", "trinity", "kde",
+                               "pantheon"]:
+            return desktop_session
         
-        if desktop_session is not None:
-            
-            desktop_session = desktop_session.lower()
-            
-            if desktop_session in ["gnome","unity", "cinnamon", "mate", "xfce4", "lxde", "fluxbox", 
-                                   "blackbox", "openbox", "icewm", "jwm", "afterstep","trinity", "kde",
-                                   "pantheon"]:
-                return desktop_session
-            
-            ## Special cases ##
-            # Canonical sets $DESKTOP_SESSION to Lubuntu rather than LXDE if using LXDE.
-            # There is no guarantee that they will not do the same with the other desktop environments.
-            
-            elif "xfce" in desktop_session or desktop_session.startswith("xubuntu"):
-                return "xfce4"
-            
-            elif desktop_session.startswith("ubuntu"):
-                return "unity"       
-            
-            elif desktop_session.startswith("lubuntu"):
-                return "lxde" 
-            
-            elif desktop_session.startswith("kubuntu"): 
-                return "kde" 
-            
-            elif desktop_session.startswith("razor"):
-                return "razor-qt"
-            
-            elif desktop_session.startswith("wmaker"):
-                return "windowmaker"
-            
-        if os.environ.get('KDE_FULL_SESSION') == 'true':
-            return "kde"
+        ## Special cases ##
+        # Canonical sets $DESKTOP_SESSION to Lubuntu rather than LXDE if using LXDE.
+        # There is no guarantee that they will not do the same with the other desktop environments.
         
-        elif os.environ.get('GNOME_DESKTOP_SESSION_ID'):
-            if not "deprecated" in os.environ.get('GNOME_DESKTOP_SESSION_ID'):
-                return "gnome2"
-        
-        elif is_running("gnome-session"):
-            return "gnome"
-        
-        elif is_running("xfce-mcs-manage"):
+        if "xfce" in desktop_session or desktop_session.startswith("xubuntu"):
             return "xfce4"
         
-        elif is_running("xfce4start"):
-            return "xfce4"
+        if desktop_session.startswith("ubuntu"):
+            return "unity"       
         
-        elif is_running("openbox"):
-            return "openbox"
+        if desktop_session.startswith("lubuntu"):
+            return "lxde" 
         
-        elif is_running("ksmserver"):
-            return "kde"
+        if desktop_session.startswith("kubuntu"): 
+            return "kde" 
+        
+        if desktop_session.startswith("razor"):
+            return "razor-qt"
+        
+        if desktop_session.startswith("wmaker"):
+            return "windowmaker"
     
+    if os.environ.get('KDE_FULL_SESSION') == 'true':
+        return "kde"
+    
+    if os.environ.get('GNOME_DESKTOP_SESSION_ID'):
+        if not "deprecated" in os.environ.get('GNOME_DESKTOP_SESSION_ID'):
+            return "gnome2"
+    
+    if is_running("gnome-session"):
+        return "gnome"
+    
+    if is_running("mate-session"):
+        return "mate"
+    
+    if is_running("cinnamon-sessio"):
+        return "cinnamon"
+    
+    if is_running("lxsession"):
+        return "lxde"
+    
+    if is_running("xfce4-session"):
+        return "xfce4"
+    
+    if is_running("xfce-mcs-manage"):
+        return "xfce4"
+    
+    if is_running("xfce4start"):
+        return "xfce4"
+    
+    if is_running("openbox"):
+        return "openbox"
+    
+    if is_running("ksmserver"):
+        return "kde"
+
     return "unknown"
 
+s = []
 def is_running(process):
-    try:
-        #Linux/Unix
-        s = subprocess.Popen(["ps", "axw"],      stdout=subprocess.PIPE).communicate()[0].splitlines()
-    except:
-        #Windows
-        s = subprocess.Popen(["tasklist", "/v"], stdout=subprocess.PIPE).communicate()[0].splitlines()
-    
+    #print('Is Running?')
+    global s
+    if not s:
+        #print('Looking up process list')
+        try:
+            #Linux/Unix
+            s = subprocess.Popen(["ps", "axw"],      stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+        except:
+            #Windows
+            s = subprocess.Popen(["tasklist", "/v"], stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+        
     for x in s:
-        x = x.decode('utf-8')
         if re.search(process, x):
             return True
     
@@ -129,6 +140,25 @@ def get_home_dir():
         return os.path.expanduser('~')
         # raise KeyError("Neither USERPROFILE or HOME environment variables set.")
 
+def get_dbus_address(session_name="session"):
+    
+    dbus_address = os.environ.get('DBUS_SESSION_BUS_ADDRESS')
+    
+    if(dbus_address is None):
+        #print('DBUS_SESSION_BUS_ADDRESS is None')
+        args = ['pgrep',session_name]
+        lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
+        pid = lines[-1]
+        
+        args = ['grep','-z','DBUS_SESSION_BUS_ADDRESS','/proc/%s/environ' % pid]
+        lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].partition(b'\0')[0].decode('utf-8').splitlines()
+        address = lines[0].split("=",1)[1]
+        
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = address
+        dbus_address = address
+        
+    return dbus_address
+
 
 
 def set_wallpaper(file_loc, desktop_env = None):
@@ -138,37 +168,26 @@ def set_wallpaper(file_loc, desktop_env = None):
     
     try:
         
-        if   desktop_env == "gnome":
+        if   desktop_env in ["gnome", "unity", "pantheon"]:
             
-            if(os.environ.get('DBUS_SESSION_BUS_ADDRESS') is None):
-                #print('DBUS_SESSION_BUS_ADDRESS is None')
-                args = ['pgrep','gnome-session']
-                lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].decode('utf-8').splitlines()
-                pid = lines[-1]
-                
-                args = ['grep','-z','DBUS_SESSION_BUS_ADDRESS','/proc/%s/environ' % pid]
-                lines = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].partition(b'\0')[0].decode('utf-8').splitlines()
-                address = lines[0].split("=",1)[1]
-                
-                os.environ['DBUS_SESSION_BUS_ADDRESS'] = address
-
-            uri  = file_loc
-            args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
-            call(args)
-
-        elif desktop_env == "unity":
+            get_dbus_address('gnome-session')
 
             uri  = "file://%s" % file_loc
             args = ["gsettings", "set", "org.gnome.desktop.background", "picture-uri", uri]
             call(args)
 
         elif desktop_env == "cinnamon":
+            
+            # Why "sessio", WHY?! (some kind of character limit thing, I guess)
+            get_dbus_address('cinnamon-sessio')
 
             uri  = "file://%s" % file_loc
             args = ["gsettings", "set", "org.cinnamon.desktop.background", "picture-uri", uri]
             call(args)
 
         elif desktop_env == "mate":
+            
+            get_dbus_address('mate-session')
 
             try:
                 # MATE >= 1.6
@@ -179,8 +198,9 @@ def set_wallpaper(file_loc, desktop_env = None):
                 args = ["mateconftool-2","-t","string","--set","/desktop/mate/background/picture_filename",'"%s"' % file_loc]
                 call(args)
 
-        elif desktop_env == "gnome2": # Not tested
-
+        elif desktop_env == "gnome2":
+            
+            # Not tested
             args = ["gconftool-2","-t","string","--set","/desktop/gnome/background/picture_filename", '"%s"' %file_loc]
             call(args)
 
@@ -198,6 +218,8 @@ def set_wallpaper(file_loc, desktop_env = None):
             call(args, shell=True)
             
         elif desktop_env=="xfce4":
+            
+            get_dbus_address('xfce4-session')
 
             args = ['xfconf-query','--channel','xfce4-desktop','--list']
             for window in subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0].splitlines():
@@ -261,14 +283,16 @@ def set_wallpaper(file_loc, desktop_env = None):
 
         elif desktop_env=="lxde":
 
+            get_dbus_address('lxsession')
+            
             args = "pcmanfm --set-wallpaper %s --wallpaper-mode=scaled" % file_loc
             call(args, shell=True)
 
-        elif desktop_env=="pantheon":
-
-            # elementary OS
-            args = ['set-wallpaper', file_loc]
-            call(args)
+        #elif desktop_env=="pantheon":
+        #
+        #    # elementary OS, same as gnome
+        #    args = ['set-wallpaper', file_loc]
+        #    call(args)
 
         elif desktop_env=="windowmaker":
 
