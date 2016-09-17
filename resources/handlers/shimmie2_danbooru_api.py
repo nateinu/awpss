@@ -18,15 +18,15 @@ class Shimmie2DanbooruAPI:
     url_api = 'api/danbooru/find_posts'
     
     def fetch(self):
-        requestURL = "%s%s?tags=" % (self.conf['url'], self.url_api)
+        requestURL = "{}{}?tags=".format(self.conf['url'], self.url_api)
         
         if self.conf['rating'] != 'false':
-            requestURL += "rating:%s+" % self.conf['rating']
+            requestURL += "rating:{}+".format(self.conf['rating'])
         
         if self.conf['size'] != 'false':
-            requestURL += "size:%s+" % self.conf['size']
+            requestURL += "size:{}+".format(self.conf['size'])
         
-        requestURL += "%s&limit=%s&page=%s" % (self.conf['tags'], self.conf['api_limit'], self.conf['offset'])
+        requestURL += "{}&limit={}&page={}".format(self.conf['tags'], self.conf['api_limit'], self.conf['offset'])
         
         root = ET.parse(urlopen(requestURL)).getroot()
         self.items = root.findall('post')

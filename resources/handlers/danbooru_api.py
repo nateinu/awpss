@@ -19,18 +19,18 @@ class DanbooruAPI:
     
     def fetch(self):
         #login and api_key
-        requestURL = "%s%s?tags=" % (self.conf['url'], self.url_api)
+        requestURL = "{}{}?tags=".format(self.conf['url'], self.url_api)
         
         if self.conf['rating'] != 'false':
-            requestURL += "rating:%s+" % self.conf['rating']
+            requestURL += "rating:{}+".format(self.conf['rating'])
         
         if self.conf['size'] != 'false':
-            requestURL += "width:%s+height:%s+" % tuple(self.conf['size'].split('x'))
+            requestURL += "width:{d[0]}+height:{d[1]}+".format(d=self.conf['size'].split('x'))
         
-        requestURL += "%s&limit=%s&page=%s" % (self.conf['tags'], self.conf['api_limit'], self.conf['offset'])
+        requestURL += "{}&limit={}&page={}".format(self.conf['tags'], self.conf['api_limit'], self.conf['offset'])
         
         if self.conf['user'] != '' and self.conf['pass'] != '':
-            requestURL += "&login=%s&api_key=%s" % (self.conf['user'], self.conf['pass'])
+            requestURL += "&login={}&api_key={}".format(self.conf['user'], self.conf['pass'])
         
         root = ET.parse(urlopen(requestURL)).getroot()
         self.items = root.findall('post')

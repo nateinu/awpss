@@ -20,8 +20,8 @@ except ImportError:
 hist = defaultdict(bool)
 
 conf_dir  = os.path.join(os.path.expanduser('~'), '.awpss')
-conf_file = os.path.join(conf_dir, 'config')
-hist_file = os.path.join(conf_dir, 'history')
+conf_file = os.path.join(conf_dir, 'config.json')
+hist_file = os.path.join(conf_dir, 'history.json')
 
 conf = {
     'api'        :'gelbooru_api',
@@ -29,14 +29,15 @@ conf = {
     'tags'       :'ore_no_imouto_ga_konna_ni_kawaii_wake_ga_nai',
     'timeout'    :'60',
     'rating'     :'true',
-    'size'       :'true',
+    'size'       :'1920x1080',
     'enabled'    :'true',
     'api_limit'  :'10',
     'cache_size' :'500', # Number of images
     'offset'     :'0',
     'user'       :'',
     'pass'       :'',
-    'desktop'    :''
+    'desktop'    :'gnome',
+    'timer'      :'systemd'
 }
 
 
@@ -108,8 +109,11 @@ def write_hist_file(hist):
 
 
 if os.path.exists(conf_file):
+    print("Loading config file: {}".format(conf_file))
     with open(conf_file, 'r') as handle:
         conf = json.loads(handle.read())
+else:
+    print("No config file, using defaults")
 
 hist = read_hist_file()
 
@@ -141,6 +145,6 @@ if desktop_env is "unknown" and conf['desktop']:
 
 set_wallpaper(pic_file, desktop_env)
 
-print(time.strftime('%c'), desktop_env, pic_file, sep="\t")
+print(time.strftime('%c'), desktop_env, conf['api'], pic_file, sep="\t")
 
 

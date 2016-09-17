@@ -2,23 +2,22 @@
 
 import os
 import json
-from subprocess import call
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf
-from resources.set_wallpaper import is_running
 from resources.set_wallpaper import get_desktop_environment
+from resources.timers import *
 
 class Awpss():
     ''' Main class file. '''
 
     conf_dir  = os.path.join(os.path.expanduser('~'), '.awpss')
-    conf_file = os.path.join(conf_dir, 'config')
-    hist_file = os.path.join(conf_dir, 'history')
-    log_file  = os.path.join(conf_dir, 'awpss_cronjob.log')
+    conf_file = os.path.join(conf_dir, 'config.json')
+    hist_file = os.path.join(conf_dir, 'history.json')
+    log_file  = os.path.join(conf_dir, 'task.log')
     
     resources = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'resources')
-    cron_file = os.path.join(resources, 'awpss_cronjob.py')
+    task_file = os.path.join(resources, 'awpss_task.py')
     
     api_list      = ['Pixiv API', 'Gelbooru API', 'Danbooru API', 'Shimmie2 Danbooru API']
     api_list_safe = [a.lower().replace(" ", "_") for a in api_list]
@@ -29,14 +28,15 @@ class Awpss():
         'tags'       :'ore_no_imouto_ga_konna_ni_kawaii_wake_ga_nai',
         'timeout'    :'60',
         'rating'     :'true',
-        'size'       :'true',
+        'size'       :'1920x1080',
         'enabled'    :'true',
         'api_limit'  :'10',
         'cache_size' :'500', # Number of images
         'offset'     :'0',
         'user'       :'',
         'pass'       :'',
-        'desktop'    :''
+        'desktop'    :'gnome',
+        'timer'      :'systemd'
     }
 
     def write_conf(self):
@@ -52,8 +52,11 @@ class Awpss():
         ''' Retrieves the fields from the option file. '''
 
         if os.path.exists(self.conf_file):
+            print("Loading config file: {}".format(self.conf_file))
             with open(self.conf_file, 'r') as handle:
                 self.conf = json.loads(handle.read())
+        else:
+            print("No config file, using defaults")
 
     def get_fields(self):
         ''' Gets the fields. '''
@@ -72,7 +75,7 @@ class Awpss():
         mg        = screen.get_monitor_geometry(screen.get_monitor_at_window(screen.get_active_window()))
         self.conf['size'] = 'x'.join([str(mg.width), str(mg.height)]) if self.size_check.get_active() else 'false'
 
-    def setup_cron(self, widget, dummy):
+    def setup_task(self, widget, dummy):
         ''' Save the options. '''
         
         self.get_fields()
@@ -81,21 +84,16 @@ class Awpss():
         if os.path.exists(self.hist_file):
             os.remove(self.hist_file)
         
-        command  = ['/usr/bin/env', 'python3', self.cron_file, '2>&1', '>>', self.log_file]
-        cron_job = '0 * * * * %s' % ' '.join(command)
-        add_cron = "( crontab -l | grep -v awpss ; echo \"%s\" ) | crontab - " % cron_job
-        rm_cron  = 'crontab -l | grep -v awpss | crontab - '
-        
-        if self.conf['enabled'] == 'true':
-            call(add_cron, shell=True)
-            call(command)
-        else:
-            call(rm_cron, shell=True)
-        
-        if not is_running('cron'):
-            print('Cron does not seem to be running.\nYou might need to run:\n"sudo systemctl enable crond ; sudo systemctl start crond"\nOR\n"sudo /etc/init.d/cron start"\n')
+        if   self.conf['timer'] == 'at':
+            pass
+        elif self.conf['timer'] == 'cron':
+            timer = cron.Cron()
+        elif self.conf['timer'] == 'freedesktop':
+            pass
+        elif self.conf['timer'] == 'systemd':
+            timer = systemd.SystemD()
 
-
+        timer.set(self.task_file, self.log_file, self.conf['timeout'], self.conf['enabled'])
 
     ''' GUI on_change methods '''
     #def on_apis_combo_changed(self, combo):
@@ -261,7 +259,7 @@ class Awpss():
 
         # Apply button
         button = Gtk.Button(stock=Gtk.STOCK_APPLY)
-        button.connect('clicked', self.setup_cron, None)
+        button.connect('clicked', self.setup_task, None)
         hbox.pack_start(button, False, True, 0)
 
         # Done
