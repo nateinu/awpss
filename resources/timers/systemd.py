@@ -65,9 +65,11 @@ WantedBy=timers.target
         if enable:
             call(['systemctl', '--user', 'enable', 'awpss.service'])
             call(['systemctl', '--user', 'enable', 'awpss.timer'])
-            call(['systemctl', '--user', 'start',  'awpss.service'])
+            call(['systemctl', '--user', 'start',  'awpss.timer'])
         else:
+            call(['systemctl', '--user', 'disable', 'awpss.service'])
             call(['systemctl', '--user', 'disable', 'awpss.timer'])
+            call(['systemctl', '--user', 'stop',    'awpss.timer'])
         
     def set(self, task_file='', log_file='', minutes='60', enabled=False):
         self.task_file = task_file
